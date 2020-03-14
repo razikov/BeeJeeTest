@@ -5,40 +5,27 @@ namespace App\Controller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class JobController
+class JobController extends BaseController
 {
     const PER_PAGE = 3;
     
-    protected $container;
-    protected $templateRenderer;
-    protected $jobRepository;
-    protected $isAdmin = false;
-
-
-    public function __construct(\League\Plates\Engine $templateRenderer, \App\Models\JobRepository $jobRepository, $container)
-    {
-        $this->container = $container;
-        $this->templateRenderer = $templateRenderer;
-        $this->jobRepository = $jobRepository;
-    }
-    
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
-        $session = $request->getAttribute('session');
-        $segment = $session->getSegment('jobController');
-        $isAdmin = $segment->get('isAdmin');
-        $successMessage = $segment->getFlash('successMessage');
-        $failMessage = $segment->getFlash('failMessage');
-        
+        $segment = $this->getSession($request);
+        $flashMsg = [
+            'success' => $segment->getFlash('successMessage'),
+            'fail' => $segment->getFlash('failMessage'),
+        ];
         $q = $request->getQueryParams();
         $page = $q['page'] ?? 0;
+        $order = $q['sort'] ?? '';
+        
         $pager = new \App\Models\Pagination(
             $this->jobRepository->countAll(),
             (int)$page ?: 1,
             self::PER_PAGE,
             $q
         );
-        $order = $q['sort'] ?? '';
         
         $jobs = $this->jobRepository->all(
             $pager->getOffset(),
@@ -49,9 +36,8 @@ class JobController
         return $this->render('app/index', [
             'jobs' => $jobs,
             'pager' => $pager,
-            'isAdmin' => $isAdmin,
-            'successMessage' => $successMessage,
-            'failMessage' => $failMessage,
+            'isAdmin' => $this->isAdmin,
+            'flashMsg' => $flashMsg,
             'q' => $q,
         ]);
     }
@@ -59,9 +45,7 @@ class JobController
     public function createAction(ServerRequestInterface $request) : ResponseInterface
     {
         $isPost = $request->getMethod() === 'POST';
-        $session = $request->getAttribute('session');
-        $segment = $session->getSegment('jobController');
-        $isAdmin = $segment->get('isAdmin');
+        $segment = $this->getSession($request);
         
         $model = new \App\Models\JobForm();
         
@@ -76,11 +60,11 @@ class JobController
             return new \Laminas\Diactoros\Response\RedirectResponse('/');
         } else {
             return $this->render('app/form', [
-                    'model' => $model,
-                    'isAdmin' => $isAdmin,
-                    'isNew' => true,
-                    'url' => '/create'
-                ]);
+                'model' => $model,
+                'isAdmin' => $this->isAdmin,
+                'isNew' => true,
+                'url' => '/create'
+            ]);
         }
     }
     
@@ -88,11 +72,9 @@ class JobController
     {
         $id = (int)$args['id'] ?? null;
         $isPost = $request->getMethod() === 'POST';
-        $session = $request->getAttribute('session');
-        $segment = $session->getSegment('jobController');
-        $isAdmin = $segment->get('isAdmin');
+        $segment = $this->getSession($request);
         
-        if (!$isAdmin) {
+        if (!$this->isAdmin) {
             $segment->setFlash('failMessage', 'Операция доступна только администратору.');
             return new \Laminas\Diactoros\Response\RedirectResponse('/');
         }
@@ -116,7 +98,7 @@ class JobController
         } else {
             return $this->render('app/form', [
                     'model' => $model,
-                    'isAdmin' => $isAdmin,
+                    'isAdmin' => $this->isAdmin,
                     'isNew' => false,
                     'url' => '/update/'.$id
                 ]);
@@ -128,11 +110,8 @@ class JobController
         $users = [
             getenv('ADMIN_LOGIN') => getenv('ADMIN_PASSWORD')
         ];
-        
         $isPost = $request->getMethod() === 'POST';
-        $session = $request->getAttribute('session');
-        $segment = $session->getSegment('jobController');
-        $isAdmin = $segment->get('isAdmin');
+        $segment = $this->getSession($request);
         
         $model = new \App\Models\LoginForm();
         
@@ -142,7 +121,7 @@ class JobController
         } else {
             return $this->render('app/loginForm', [
                 'model' => $model,
-                'isAdmin' => $isAdmin,
+                'isAdmin' => $this->isAdmin,
             ]);
         }
         return new \Laminas\Diactoros\Response\RedirectResponse('/');
@@ -156,21 +135,4 @@ class JobController
         
         return new \Laminas\Diactoros\Response\RedirectResponse('/');
     }
-    
-    protected function render($view, $params = [])
-    {
-        $response = new \Laminas\Diactoros\Response();
-        $response->getBody()
-                ->write($this->templateRenderer->render($view, $params));
-        return $response->withStatus(200);
-    }
-    
-    protected function renderJson($data = [])
-    {
-        $response = new \Laminas\Diactoros\Response();
-        $response->getBody()->write(json_encode($data));
-        $response->withAddedHeader('content-type', 'application/json')->withStatus(200);
-        return $response;
-    }
-    
 }

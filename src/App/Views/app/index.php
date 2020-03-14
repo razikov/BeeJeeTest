@@ -37,15 +37,17 @@ $getSortUrl = function ($getAttr, $targetAttr) use ($reverseSort, $q) {
 <?php $this->layout('layout/main', ['isAdmin' => $isAdmin]) ?>
 
 <?php $this->start('flash') ?>
-<?php if ($successMessage): ?>
-    <div class="alert alert-success" role="alert">
-        <?= $successMessage ?>
-    </div>
-<?php endif; ?>
-<?php if ($failMessage): ?>
-    <div class="alert alert-danger" role="alert">
-        <?= $failMessage ?>
-    </div>
+<?php if ($flashMsg): ?>
+    <?php if ($flashMsg['success']): ?>
+        <div class="alert alert-success" role="alert">
+            <?= $flashMsg['success'] ?>
+        </div>
+    <?php endif; ?>
+    <?php if ($flashMsg['fail']): ?>
+        <div class="alert alert-danger" role="alert">
+            <?= $flashMsg['fail'] ?>
+        </div>
+    <?php endif; ?>
 <?php endif; ?>
 <?php $this->end() ?>
     
