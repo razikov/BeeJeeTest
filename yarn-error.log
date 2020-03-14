@@ -1,0 +1,66 @@
+Arguments: 
+  /usr/bin/node /home/aleksey/.yarn/bin/yarn.js install
+
+PATH: 
+  /home/aleksey/.yarn/bin:/home/aleksey/.config/yarn/global/node_modules/.bin:/home/aleksey/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+
+Yarn version: 
+  1.12.3
+
+Node version: 
+  8.10.0
+
+Platform: 
+  linux x64
+
+Trace: 
+  SyntaxError: /home/aleksey/www/beeJee/package.json: Unexpected token } in JSON at position 596
+      at JSON.parse (<anonymous>)
+      at /home/aleksey/.yarn/lib/cli.js:1631:59
+      at Generator.next (<anonymous>)
+      at step (/home/aleksey/.yarn/lib/cli.js:304:30)
+      at /home/aleksey/.yarn/lib/cli.js:315:13
+      at <anonymous>
+
+npm manifest: 
+  {
+    "name": "beeJeeJob",
+    "version": "0.1",
+    "description": "beeJeeJob",
+    "require": {
+      "php": ">=7.1.0",
+      "bootstrap": "^4.0.0",
+      "bootstrap-sass": "^3.3.7",
+      "bootstrap-select": "^1.12.2",
+      "fileicon.css": "^0.1.1",
+      "fotorama": "^4.6.4",
+      "ion-rangeslider": "^2.1.4",
+      "jquery": "^3.1.1",
+      "jquery-datetimepicker": "^2.5.4",
+      "jquery-ui": "^1.12.1",
+      "lightbox2": "^2.8.2",
+      "nouislider": "^9.2.0",
+      "swiper": "^4.2.2",
+      "video.js": "^7.3.0",
+      "videojs-flash": "^2.1.2",
+      "vue": "^2.5.17"
+    },
+    "require-dev": {
+      "filp/whoops": "^2.2",
+    },
+    "autoload": {
+      "psr-4": {
+        "App\\": "src/App/",
+        "Framework\\": "src/Framework/",
+        "Infrastructure\\": "src/Infrastructure/",
+      }
+    },
+    "author": "razikov",
+    "license": "BSD"
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
