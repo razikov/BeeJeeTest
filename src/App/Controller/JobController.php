@@ -80,12 +80,10 @@ class JobController extends BaseController
         }
         
         $job = $this->jobRepository->find($id);
-        $model = new \App\Models\JobForm($job->getDto());
-        
         if (!$job) {
-            $segment->setFlash('failMessage', 'Не найдена задача.');
-            return new \Laminas\Diactoros\Response\RedirectResponse('/');
+            throw new \League\Route\Http\Exception\NotFoundException("Задача не найдена");
         }
+        $model = new \App\Models\JobForm($job->getDto());
         
         if ($isPost && $model->load($request->getParsedBody()) && $model->validate()) {
             $job->loadForm($model);
