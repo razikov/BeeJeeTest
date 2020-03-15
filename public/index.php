@@ -2,11 +2,6 @@
 chdir(dirname(__DIR__));
 require 'vendor/autoload.php';
 
-// TODO:
-// добавить сборщик фронта
-// поискать другой роутер, копнуть глубже этот
-// 
-
 $whoops = new \Whoops\Run;
 $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
 $whoops->register();

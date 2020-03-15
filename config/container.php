@@ -18,7 +18,7 @@ $container['adminUsers'] = [
 ];
 $container['entityPath'] = [__DIR__."/../src/App/Entity"];
 $container['viewsPath'] = __DIR__.'/../src/App/Views';
-$container['assetsPath'] = __DIR__.'/../assets/';
+$container['assetsPath'] = __DIR__.'/../public/';
 
 // ===== SERVICES =========
 $container['annotationConfig'] = function($c) {
