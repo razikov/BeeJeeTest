@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Container\ContainerInterface;
 
 class BaseController
 {
@@ -12,7 +13,7 @@ class BaseController
     protected $jobRepository;
     protected $isAdmin = false;
 
-    public function __construct(\League\Container\Container $container)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
         $this->jobRepository = $container->get(\App\Models\JobRepository::class);
@@ -30,8 +31,7 @@ class BaseController
     {
         $templateRenderer = $this->container->get(\League\Plates\Engine::class);
         $response = new \Laminas\Diactoros\Response();
-        $response->getBody()
-                ->write($templateRenderer->render($view, $params));
+        $response->getBody()->write($templateRenderer->render($view, $params));
         return $response->withStatus(200);
     }
     

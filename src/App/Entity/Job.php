@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * @ORM\Entity
  * @ORM\Table(name="jobs")
@@ -48,12 +50,6 @@ class Job
         $this->content = $dto['content'] ?? '';
         $this->status = $dto['status'] ?? false;
         $this->edited_by_admin = $dto['edited_by_admin'] ?? false;
-    }
-    
-    // TODO: убрать после добавления орм
-    public function setId($value)
-    {
-        return $this->id = $value;
     }
     
     public function getId()
@@ -109,7 +105,7 @@ class Job
         return (bool)$this->edited_by_admin;
     }
     
-    public function loadForm(\App\Models\JobForm $form, $isNew)
+    public function loadForm(\App\Models\JobForm $form)
     {
         $this->setName($form->name);
         $this->setEmail($form->email);

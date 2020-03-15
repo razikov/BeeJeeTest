@@ -9,6 +9,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link rel="stylesheet" href="<?=$this->asset('/css/bootstrap.min.css')?>">
         <link rel="stylesheet" href="<?=$this->asset('/css/app.css')?>">
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
     </head>
     <body class="">
         <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">

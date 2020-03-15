@@ -5,10 +5,12 @@ namespace App\Models;
 class JobRepository
 {
     private $pdo;
+    private $em;
 
-    public function __construct(\PDO $pdo)
+    public function __construct(\PDO $pdo, \Doctrine\ORM\EntityManager $em)
     {
         $this->pdo = $pdo;
+        $this->em = $em;
     }
 
     public function countAll(): int
@@ -40,37 +42,15 @@ class JobRepository
 
     public function find(int $id)
     {
-        
-        $stmt = $this->pdo->prepare('SELECT j.* FROM jobs j WHERE id = :id');
-        $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        if (!$job = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            return null;
-        }
-        
-        return $this->hydrateObj($job);
+        $job = $this->em->find(\App\Entity\Job::class, $id);
+        return $job;
     }
     
     public function save(\App\Entity\Job $job)
     {
-        if ($job->getId() === null) {
-            $stmt = $this->pdo->prepare("INSERT INTO jobs (name, email, content, status, edited_by_admin) value (:name, :email, :content, :status, :edited_by_admin)");
-            $stmt->bindValue(':name', $job->getName(), \PDO::PARAM_STR);
-            $stmt->bindValue(':email', $job->getEmail(), \PDO::PARAM_STR);
-            $stmt->bindValue(':content', $job->getContent(), \PDO::PARAM_STR);
-            $stmt->bindValue(':status', $job->getStatus(), \PDO::PARAM_INT);
-            $stmt->bindValue(':edited_by_admin', $job->getEditedByAdmin(), \PDO::PARAM_INT);
-        } else {
-            $stmt = $this->pdo->prepare("UPDATE jobs SET name = :name, email = :email, content = :content, status = :status, edited_by_admin = :edited_by_admin WHERE id = :id");
-            $stmt->bindValue(':id', $job->getId(), \PDO::PARAM_INT);
-            $stmt->bindValue(':name', $job->getName(), \PDO::PARAM_STR);
-            $stmt->bindValue(':email', $job->getEmail(), \PDO::PARAM_STR);
-            $stmt->bindValue(':content', $job->getContent(), \PDO::PARAM_STR);
-            $stmt->bindValue(':status', $job->getStatus(), \PDO::PARAM_BOOL);
-            $stmt->bindValue(':edited_by_admin', $job->getEditedByAdmin(), \PDO::PARAM_BOOL);
-        }
-        return $stmt->execute();
+        $this->em->persist($job);
+        $this->em->flush();
+        return true;
     }
 
     private function hydrate($row): array
@@ -83,11 +63,5 @@ class JobRepository
             'status' => $row['status'],
             'edited_by_admin' => $row['edited_by_admin'],
         ];
-    }
-
-    private function hydrateObj($row)
-    {
-        $model = new \App\Entity\Job($row);
-        return $model;
     }
 }
