@@ -18,14 +18,6 @@ class BaseController
         $this->container = $container;
         $this->jobRepository = $container->get(\App\Models\JobRepository::class);
     }
-    
-    protected function getSession(ServerRequestInterface $request)
-    {
-        $session = $request->getAttribute('session');
-        $segment = $session->getSegment('jobController');
-        $this->isAdmin = $segment->get('isAdmin');
-        return $segment;
-    }
 
     protected function render($view, $params = []): ResponseInterface
     {

@@ -2,17 +2,20 @@
   "minimum-stability": "stable",
   "require": {
     "php": ">=7.1.0",
+    "pimple/pimple": "^3.3",
     "filp/whoops": "^2.7",
-    "doctrine/annotations": "^1.8",
-    "league/route": "^4.3",
-    "laminas/laminas-diactoros": "^2.2",
-    "laminas/laminas-httphandlerrunner": "^1.1",
     "league/plates": "^3.3",
-    "middlewares/aura-session": "^1.1",
+    "aura/router": "^3.1",
+    "laminas/laminas-diactoros": "^2.2",
+    "laminas/laminas-stratigility": "^3.2",
+    "laminas/laminas-httphandlerrunner": "^1.1",
+    "doctrine/annotations": "^1.8",
+    "doctrine/orm": "^2.7",
     "symfony/validator": "^5.0",
     "vlucas/phpdotenv": "^4.1",
-    "doctrine/orm": "^2.7",
-    "pimple/pimple": "^3.3"
+    "mezzio/mezzio-session-ext": "^1.8",
+    "mezzio/mezzio-flash": "^1.0",
+    "league/route": "^4.3"
   },
   "require-dev": {
     

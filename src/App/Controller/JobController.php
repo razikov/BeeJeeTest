@@ -11,11 +11,14 @@ class JobController extends BaseController
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
-        $segment = $this->getSession($request);
+        $session = $request->getAttribute('session');
+        $flashMessages = $request->getAttribute('flash');
+        $this->isAdmin = $session->get('isAdmin');
         $flashMsg = [
-            'success' => $segment->getFlash('successMessage'),
-            'fail' => $segment->getFlash('failMessage'),
+            'success' => $flashMessages->getFlash('successMessage'),
+            'fail' => $flashMessages->getFlash('failMessage'),
         ];
+        
         $q = $request->getQueryParams();
         $page = $q['page'] ?? 0;
         $order = $q['sort'] ?? '';
@@ -45,17 +48,20 @@ class JobController extends BaseController
     public function createAction(ServerRequestInterface $request) : ResponseInterface
     {
         $isPost = $request->getMethod() === 'POST';
-        $segment = $this->getSession($request);
+        $session = $request->getAttribute('session');
+        $flashMessages = $request->getAttribute('flash');
+        $this->isAdmin = $session->get('isAdmin');
         
         $model = new \App\Models\JobForm();
         
         if ($isPost && $model->load($request->getParsedBody()) && $model->validate()) {
-            $job = new \App\Entity\Job($model->getDto());
+//            $job = new \App\Entity\Job($model->getDto());
+            $job = new \App\Entity\Job();
             $job->loadForm($model);
             if ($this->jobRepository->save($job)) {
-                $segment->setFlash('successMessage', 'Задача добавлена');
+                $flashMessages->flash('successMessage', 'Задача добавлена');
             } else {
-                $segment->setFlash('failMessage', 'Произошла ошибка. Задача не создана.');
+                $flashMessages->flash('failMessage', 'Произошла ошибка. Задача не создана.');
             }
             return new \Laminas\Diactoros\Response\RedirectResponse('/');
         } else {
@@ -68,14 +74,16 @@ class JobController extends BaseController
         }
     }
     
-    public function updateAction(ServerRequestInterface $request, $args) : ResponseInterface
+    public function updateAction(ServerRequestInterface $request) : ResponseInterface
     {
-        $id = (int)$args['id'] ?? null;
+        $id = (int)$request->getAttribute('id') ?? null;
         $isPost = $request->getMethod() === 'POST';
-        $segment = $this->getSession($request);
+        $session = $request->getAttribute('session');
+        $flashMessages = $request->getAttribute('flash');
+        $this->isAdmin = $session->get('isAdmin');
         
         if (!$this->isAdmin) {
-            $segment->setFlash('failMessage', 'Операция доступна только администратору.');
+            $flashMessages->flash('failMessage', 'Операция доступна только администратору.');
             return new \Laminas\Diactoros\Response\RedirectResponse('/');
         }
         
@@ -88,9 +96,9 @@ class JobController extends BaseController
         if ($isPost && $model->load($request->getParsedBody()) && $model->validate()) {
             $job->loadForm($model);
             if ($this->jobRepository->save($job)) {
-                $segment->setFlash('successMessage', 'Задача сохранена');
+                $flashMessages->flash('successMessage', 'Задача сохранена');
             } else {
-                $segment->setFlash('failMessage', 'Произошла ошибка. Задача не сохранена.');
+                $flashMessages->flash('failMessage', 'Произошла ошибка. Задача не сохранена.');
             }
             return new \Laminas\Diactoros\Response\RedirectResponse('/');
         } else {

@@ -10,14 +10,14 @@ class SiteController extends BaseController
     
     public function loginAction(ServerRequestInterface $request) : ResponseInterface
     {
+        $session = $request->getAttribute('session');
         $users = $this->container->get('adminUsers');
         $isPost = $request->getMethod() === 'POST';
-        $segment = $this->getSession($request);
         
         $model = new \App\Models\LoginForm();
         
         if ($isPost && $model->load($request->getParsedBody()) && $model->validate($users)) {
-            $segment->set('isAdmin', true);
+            $session->set('isAdmin', true);
             return new \Laminas\Diactoros\Response\RedirectResponse('/');
         } else {
             return $this->render('app/loginForm', [
@@ -31,8 +31,7 @@ class SiteController extends BaseController
     public function logoutAction(ServerRequestInterface $request) : ResponseInterface
     {
         $session = $request->getAttribute('session');
-        $segment = $session->getSegment('jobController');
-        $segment->set('isAdmin', null);
+        $session->set('isAdmin', null);
         
         return new \Laminas\Diactoros\Response\RedirectResponse('/');
     }

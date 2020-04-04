@@ -11,3 +11,8 @@ nbproject
 /node_modules
 
 .env
+.env.docker
+
+/docker
+docker-compose.yml
+
