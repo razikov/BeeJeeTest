@@ -1,5 +1,5 @@
 <?php 
-$this->layout('layout/main', ['isAdmin' => $isAdmin]);
+$this->layout('layout/main', ['isAdmin' => $isAdmin, 'flashes' => $flashes]);
 
 $hasErors = function($model) {
     if ($model->isLoad && !$model->isValid) {

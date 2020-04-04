@@ -34,22 +34,7 @@ $getSortUrl = function ($getAttr, $targetAttr) use ($reverseSort, $q) {
 };
 ?>
 
-<?php $this->layout('layout/main', ['isAdmin' => $isAdmin]) ?>
-
-<?php $this->start('flash') ?>
-<?php if ($flashMsg): ?>
-    <?php if ($flashMsg['success']): ?>
-        <div class="alert alert-success" role="alert">
-            <?= $flashMsg['success'] ?>
-        </div>
-    <?php endif; ?>
-    <?php if ($flashMsg['fail']): ?>
-        <div class="alert alert-danger" role="alert">
-            <?= $flashMsg['fail'] ?>
-        </div>
-    <?php endif; ?>
-<?php endif; ?>
-<?php $this->end() ?>
+<?php $this->layout('layout/main', ['isAdmin' => $isAdmin, 'flashes' => $flashes]) ?>
     
 <div class="d-flex p-2">
     <a href="/create" class="btn btn-primary js-form-modal">Добавить</a>

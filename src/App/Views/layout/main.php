@@ -23,7 +23,18 @@
             </div>
         </nav>
         <main role="main" class="container">
-            <?= $this->section('flash') ?>
+            <?php if ($flashes): ?>
+                <?php if (isset($flashes['successMessage'])): ?>
+                    <div class="alert alert-success" role="alert">
+                        <?= $flashes['successMessage'] ?>
+                    </div>
+                <?php endif; ?>
+                <?php if (isset($flashes['failMessage'])): ?>
+                    <div class="alert alert-danger" role="alert">
+                        <?= $flashes['failMessage'] ?>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
             <div class="">
                 <?= $this->section('content') ?>
             </div>

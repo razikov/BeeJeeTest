@@ -23,8 +23,10 @@ class Authorize implements MiddlewareInterface
     
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $flashMessages = $request->getAttribute('flash');
         $user = $request->getAttribute($this->userAttribute);
         if ($user === null && $this->allowed !== '*') {
+            $flashMessages->flash('failMessage', 'Операция доступна только администратору.');
             return new \Laminas\Diactoros\Response\RedirectResponse('/login');
         }
         return $handler->handle($request);

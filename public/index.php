@@ -9,7 +9,7 @@ $whoops->register();
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/../');
 $dotenv->load();
 
-require_once __DIR__.'/../src/Application.php';
+require_once __DIR__.'/../src/App/Application.php';
 $container = require_once __DIR__.'/../config/container.php';
 
 (new app\Application($container))->run();

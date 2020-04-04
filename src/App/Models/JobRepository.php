@@ -20,17 +20,24 @@ class JobRepository
 
     public function all(int $offset, int $limit, $order = ''): array
     {
+        $validateAttribute = function($attribute) {
+            if (in_array($attribute, ['name', 'email', 'status'])) {
+                return $attribute;
+            } else {
+                return 'id';
+            }
+        };
         if ($order) {
-            $orderDirection = substr($order, 0, 1) == '-' ? 'DESC' : 'ASC';
-            $orderAttr = $orderDirection == 'DESC' ? substr($order, 1) : $order;
-            $orderBy = sprintf('ORDER BY %s %s', $orderAttr, $orderDirection);
+            $direction = substr($order, 0, 1) == '-' ? 'DESC' : 'ASC';
+            $attribute = $direction == 'DESC' ? substr($order, 1) : $order;
         } else {
-            $orderBy = 'ORDER BY id ASC';
+            $direction = 'DESC';
+            $attribute = 'id';
         }
-        $stmt = $this->pdo->prepare('
+        $stmt = $this->pdo->prepare("
             SELECT *
-            FROM jobs '.$orderBy.' LIMIT :limit OFFSET :offset
-        ');
+            FROM jobs ORDER BY {$validateAttribute($attribute)} {$direction} LIMIT :limit OFFSET :offset
+        ");
 
         $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);

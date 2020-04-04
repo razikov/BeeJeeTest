@@ -1,5 +1,5 @@
 <?php
-$this->layout('layout/main', ['isAdmin' => $isAdmin]);
+$this->layout('layout/main', ['isAdmin' => $isAdmin, 'flashes' => $flashes]);
 
 $hasErrors = function (string $attribute) use ($errors) {
     return isset($errors[$attribute]);

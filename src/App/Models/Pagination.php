@@ -4,16 +4,18 @@ namespace App\Models;
 
 class Pagination
 {
+    const PER_PAGE = 10;
+    
     private $totalCount;
     private $page;
     private $perPage;
     private $args;
 
-    public function __construct(int $totalCount, int $page, int $perPage, array $args)
+    public function __construct(int $totalCount, int $page, array $args)
     {
         $this->totalCount = $totalCount;
         $this->page = $page;
-        $this->perPage = $perPage;
+        $this->perPage = self::PER_PAGE;
         unset($args['page']);
         $this->args = $args;
     }
@@ -36,6 +38,12 @@ class Pagination
     public function getPerPage(): int
     {
         return $this->perPage;
+    }
+    
+    public function setPerPage(int $value): self
+    {
+        $this->perPage = $value;
+        return $this;
     }
 
     public function getLimit(): int
