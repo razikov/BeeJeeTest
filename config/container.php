@@ -112,6 +112,7 @@ $container['router'] = function($c) {
     $strategy = (new App\ApplicationStrategy)->setContainer($psrContainer);
     $router = (new League\Route\Router)->setStrategy($strategy);
     $router->map('GET', '/', [App\Controller\JobController::class, 'indexAction']);
+    $router->map('GET', '/test', [App\Controller\SiteController::class, 'testAction']);
     $router->map('GET', '/login', [App\Controller\SiteController::class, 'loginAction']);
     $router->map('POST', '/login', [App\Controller\SiteController::class, 'loginAction']);
     $router->map('GET', '/logout', [App\Controller\SiteController::class, 'logoutAction']);
@@ -141,6 +142,15 @@ $container[App\Models\JobRepository::class] = function($c) {
 };// дубль
 $container['userManager'] = function ($c) {
     return new \App\Models\UserManager($c['adminUsers']);
+};
+$container[App\Events\EventDispatcher::class] = function ($c) {
+    return new App\Events\EventDispatcher($c[App\Events\ListenerProvider::class]);
+};
+$container[App\Events\ListenerProvider::class] = function ($c) {
+    $lp = new App\Events\ListenerProvider();
+    $lp->add(App\Events\BeforeActionEvent::class, 0, [App\Controller\BaseController::class, 'beforeActionForEvent']);
+//    $lp->add(App\Events\AfterActionEvent::class, 0, [App\Controller\BaseController::class, 'afterActionForEvent']);
+    return $lp;
 };
 
 return new \Pimple\Psr11\Container($container);

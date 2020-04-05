@@ -15,7 +15,6 @@ class BaseController
     protected $session;
     protected $container;
     protected $isAdmin = false;
-    protected $flashMsg;
 
     public function __construct(ContainerInterface $container)
     {
@@ -28,8 +27,15 @@ class BaseController
         $response = new Response();
         $params['flashes'] = $this->flashMessages->getFlashes();
         $params['isAdmin'] = $this->isAdmin;
+        
         $response->getBody()->write($templateRenderer->render($view, $params));
-        return $response->withStatus(200);
+        $response->withStatus(200);
+        
+        $dispatcher = $this->container->get(\App\Events\EventDispatcher::class);
+        $event = new \App\Events\AfterActionEvent($response, $this);
+        $dispatcher->dispatch($event);
+        
+        return $response;
     }
     
     protected function renderJson($data = [])
@@ -55,8 +61,23 @@ class BaseController
         $this->flashMessages = $request->getAttribute('flash');
         $this->session = $request->getAttribute('session');
         $this->isAdmin = $request->getAttribute('user') !== null;
-        $this->flashMsg = $this->flashMessages->getFlashes();
         
+    }
+    
+    public function beforeActionForEvent($event)
+    {
+        $request = $event->request;
+        $controller = $event->controller;
+        $controller->flashMessages = $request->getAttribute('flash');
+        $controller->session = $request->getAttribute('session');
+        $controller->isAdmin = $request->getAttribute('user') !== null;
+    }
+    
+    public function afterActionForEvent($event)
+    {
+        $response = $event->response;
+        $controller = $event->controller;
+        var_dump($controller);exit;
     }
     
 }

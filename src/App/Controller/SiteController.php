@@ -13,7 +13,6 @@ class SiteController extends BaseController
     
     public function loginAction(ServerRequestInterface $request) : ResponseInterface
     {
-        parent::beforeAction($request);
         $users = $this->container->get('adminUsers');
         $isPost = $request->getMethod() === 'POST';
         
@@ -32,7 +31,6 @@ class SiteController extends BaseController
     
     public function logoutAction(ServerRequestInterface $request) : ResponseInterface
     {
-        parent::beforeAction($request);
         $this->session->clear();
         
         return $this->redirect('/');

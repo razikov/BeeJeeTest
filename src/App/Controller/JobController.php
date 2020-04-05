@@ -13,7 +13,6 @@ class JobController extends BaseJobController
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
-        parent::beforeAction($request);
         $q = $request->getQueryParams();
         $page = $q['page'] ?? 0;
         $order = $q['sort'] ?? '';
@@ -39,7 +38,6 @@ class JobController extends BaseJobController
     
     public function createAction(ServerRequestInterface $request) : ResponseInterface
     {
-        parent::beforeAction($request);
         $isPost = $request->getMethod() === 'POST';
         $form = new JobForm();
         
@@ -56,7 +54,6 @@ class JobController extends BaseJobController
     
     public function updateAction(ServerRequestInterface $request) : ResponseInterface
     {
-        parent::beforeAction($request);
         $id = (int)$request->getAttribute('id');
         $isPost = $request->getMethod() === 'POST';
         

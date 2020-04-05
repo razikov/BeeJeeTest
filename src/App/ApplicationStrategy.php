@@ -17,6 +17,10 @@ class ApplicationStrategy extends DefaultApplicationStrategy
             $request = $request->withAttribute($key, $val);
         }
         
+        $dispatcher = $this->container->get(Events\EventDispatcher::class);
+        $event = new Events\BeforeActionEvent($request, $controller[0]);
+        $dispatcher->dispatch($event);
+        
         $response = $controller($request);
         $response = $this->applyDefaultResponseHeaders($response);
 
