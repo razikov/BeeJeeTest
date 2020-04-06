@@ -10,41 +10,47 @@ use Symfony\Component\Validator\Validation;
 
 class JobForm
 {
+    const STATUS_IN_PROGRESS = 0;
+    const STATUS_DONE = 1;
+    
     public $name;
     public $email;
     public $content;
     public $status;
     
     public $errors = [];
-    public $isLoad = False;
+    public $isLoad = false;
 
     public function __construct($params = [])
     {
         foreach ($params as $attribute => $value) {
             if (property_exists($this, $attribute)) {
-                if ($attribute == 'status') {
-                    $this->$attribute = (bool)$value;
-                } else {
-                    $this->$attribute = $value;
-                }
+                $this->$attribute = $value;
             }
         }
     }
     
+    public function getStatusList()
+    {
+        return [
+            self::STATUS_IN_PROGRESS => 'В работе',
+            self::STATUS_DONE => 'Выполнена',
+        ];
+    }
+
+
     public function load($params)
     {
-        $this->status = false;
+        if (empty($params)) {
+            return false;
+        }
         foreach ($params as $attribute => $value) {
             if (property_exists($this, $attribute)) {
-                if ($attribute == 'status') {
-                    $this->$attribute = (bool)$value;
-                } else {
-                    $this->$attribute = $value;
-                }
-                $this->isLoad = True;
+                $this->$attribute = $value;
+                $this->isLoad = true;
             }
         }
-        return $this->isLoad;
+        return true;
     }
     
     public function rules()
@@ -69,9 +75,9 @@ class JobForm
                 ]),
             ],
             'status' => [
-                new Type([
-                    'type' => 'bool',
-                    'message' => 'Значение должно быть логического типа.',
+                new \Symfony\Component\Validator\Constraints\Choice([
+                    'choices' => [0, 1, '0', '1', true, false],
+                    'message' => 'Значение должно быть одним из: ['. implode('; ', $this->getStatusList()).'].',
                 ]),
             ],
             'content' => [

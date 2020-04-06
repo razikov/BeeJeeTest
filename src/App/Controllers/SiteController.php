@@ -1,24 +1,31 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controllers;
 
+use App\Controllers\BaseController;
 use App\Models\LoginForm;
 use App\Models\User;
-use App\Controller\BaseController;
+use App\Models\UserManager;
+use League\Plates\Engine;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class SiteController extends BaseController
 {
+    protected $users;
+
+    public function __construct(Engine $engine, EventDispatcherInterface $dispatcher, UserManager $users)
+    {
+        $this->users = $users;
+        parent::__construct($engine, $dispatcher);
+    }
     
     public function loginAction(ServerRequestInterface $request) : ResponseInterface
     {
-        $users = $this->container->get('adminUsers');
-        $isPost = $request->getMethod() === 'POST';
+        $model = new LoginForm($this->users);
         
-        $model = new LoginForm();
-        
-        if ($isPost && $model->load($request->getParsedBody()) && $model->validate($users)) {
+        if ($model->load($request->getParsedBody()) && $model->validate()) {
             $this->session->set(User::KEY, $model->login);
             return $this->redirect('/');
         } else {

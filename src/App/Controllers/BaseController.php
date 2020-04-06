@@ -1,39 +1,38 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controllers;
 
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\RedirectResponse;
 use League\Plates\Engine;
-use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class BaseController
 {
+    protected $templateEngine;
+    protected $dispatcher;
+    
+    public $action;
     protected $flashMessages;
     protected $session;
-    protected $container;
     protected $isAdmin = false;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(Engine $engine, EventDispatcherInterface $dispatcher)
     {
-        $this->container = $container;
+        $this->templateEngine = $engine;
+        $this->dispatcher = $dispatcher;
     }
 
     protected function render($view, $params = []): ResponseInterface
     {
-        $templateRenderer = $this->container->get(Engine::class);
         $response = new Response();
         $params['flashes'] = $this->flashMessages->getFlashes();
         $params['isAdmin'] = $this->isAdmin;
         
-        $response->getBody()->write($templateRenderer->render($view, $params));
+        $response->getBody()->write($this->templateEngine->render($view, $params));
         $response->withStatus(200);
-        
-        $dispatcher = $this->container->get(\App\Events\EventDispatcher::class);
-        $event = new \App\Events\AfterActionEvent($response, $this);
-        $dispatcher->dispatch($event);
         
         return $response;
     }
@@ -51,33 +50,22 @@ class BaseController
         return new RedirectResponse($url, $status, $headers);
     }
     
-    protected function flash($key, $content)
+    protected function setFlash($key, $content)
     {
         $this->flashMessages->flash($key, $content);
     }
     
-    public function beforeAction(ServerRequestInterface $request)
+    public function beforeAction($event)
     {
+        $request = $event->request;
         $this->flashMessages = $request->getAttribute('flash');
         $this->session = $request->getAttribute('session');
         $this->isAdmin = $request->getAttribute('user') !== null;
+    }
+    
+    public function afterAction($event)
+    {
         
-    }
-    
-    public function beforeActionForEvent($event)
-    {
-        $request = $event->request;
-        $controller = $event->controller;
-        $controller->flashMessages = $request->getAttribute('flash');
-        $controller->session = $request->getAttribute('session');
-        $controller->isAdmin = $request->getAttribute('user') !== null;
-    }
-    
-    public function afterActionForEvent($event)
-    {
-        $response = $event->response;
-        $controller = $event->controller;
-        var_dump($controller);exit;
     }
     
 }

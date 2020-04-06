@@ -11,13 +11,13 @@ class Pagination
     private $perPage;
     private $args;
 
-    public function __construct(int $totalCount, int $page, array $args)
+    public function __construct(int $totalCount, array $getParams)
     {
         $this->totalCount = $totalCount;
-        $this->page = $page;
         $this->perPage = self::PER_PAGE;
-        unset($args['page']);
-        $this->args = $args;
+        $this->page = isset($getParams['page']) ? (int)$getParams['page'] : 1;
+        unset($getParams['page']);
+        $this->args = $getParams;
     }
 
     public function getTotalCount(): int

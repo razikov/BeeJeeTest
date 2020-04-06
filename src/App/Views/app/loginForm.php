@@ -19,7 +19,7 @@ $hasErors = function($model) {
                placeholder="Логин" 
                required="" 
                autofocus=""
-               value="<?= $model->login ?>">
+               value="<?= $this->e($model->login) ?>">
         <label for="password" class="sr-only">Пароль</label>
         <input type="password" 
                name="password" 

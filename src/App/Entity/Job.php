@@ -105,14 +105,6 @@ class Job
         return (bool)$this->edited_by_admin;
     }
     
-    public function loadForm(\App\Models\JobForm $form)
-    {
-        $this->setName($form->name);
-        $this->setEmail($form->email);
-        $this->setContent($form->content);
-        $this->setStatus($form->status);
-    }
-    
     public function getDto()
     {
         return [

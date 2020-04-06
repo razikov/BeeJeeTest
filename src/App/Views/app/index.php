@@ -42,8 +42,9 @@ $getSortUrl = function ($getAttr, $targetAttr) use ($reverseSort, $q) {
 <table class="table">
     <thead>
         <tr>
+            <th scope="col" width="5%">#</th>
             <th scope="col" width="20%"><a href="<?= $getSortUrl($sort, 'name') ?>">имя пользователя <?= $getIcon($sort, 'name') ?></a></th>
-            <th scope="col" width="20%"><a href="<?= $getSortUrl($sort, 'email') ?>">e-mail <?= $getIcon($sort, 'email') ?></th>
+            <th scope="col" width="15%"><a href="<?= $getSortUrl($sort, 'email') ?>">e-mail <?= $getIcon($sort, 'email') ?></th>
             <th scope="col" width="40%">текст задачи</a></th>
             <th scope="col" width="10%"><a href="<?= $getSortUrl($sort, 'status') ?>">статус <?= $getIcon($sort, 'status') ?></a></th>
             <th scope="col" width="5%"></th>
@@ -53,6 +54,7 @@ $getSortUrl = function ($getAttr, $targetAttr) use ($reverseSort, $q) {
     <tbody>
     <?php foreach ($jobs as $i => $job): ?>
         <tr>
+            <td scope="col"><?= $this->e($job['id']) ?></td>
             <td scope="col"><?= $this->e($job['name']) ?></td>
             <td scope="col"><?= $this->e($job['email']) ?></td>
             <td scope="col"><?= $this->e($job['content']) ?></td>
@@ -60,7 +62,7 @@ $getSortUrl = function ($getAttr, $targetAttr) use ($reverseSort, $q) {
             <td scope="col"><?= $job['edited_by_admin'] ? '<img src="/img/edit-3.svg" alt="Редактировалось администратором">' : '' ?></td>
             <td scope="col">
                 <?php if($isAdmin): ?>
-                <a href="/update/<?=$job['id']?>" title="Редактировать"><img src="/img/edit.svg"></a>
+                <a href="/update/<?= $this->e($job['id']) ?>" title="Редактировать"><img src="/img/edit.svg"></a>
                 <?php endif; ?>
             </td>
         </tr>

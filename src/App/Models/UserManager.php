@@ -4,8 +4,9 @@ namespace App\Models;
 
 class UserManager
 {
-    private $users;
+    const KEY = 'username';
     
+    private $users;
     
     public function __construct(array $users = ['admin' => 'admin'])
     {

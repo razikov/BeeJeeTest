@@ -4,23 +4,17 @@ namespace App\Models;
 
 class LoginForm
 {
+    private $users;
+    
     public $login;
     public $password;
     
     public $isValid = False;
     public $isLoad = False;
-
-    public function __construct($params = [])
+    
+    public function __construct(UserManager $userManager)
     {
-        foreach ($params as $attribute => $value) {
-            if (property_exists($this, $attribute)) {
-                if ($attribute == 'status') {
-                    $this->$attribute = (bool)$value;
-                } else {
-                    $this->$attribute = $value;
-                }
-            }
-        }
+        $this->users = $userManager;
     }
     
     public function load($params)
@@ -34,12 +28,11 @@ class LoginForm
         return $this->isLoad;
     }
     
-    public function validate($users)
+    public function validate()
     {
-        foreach ($users as $user => $password) {
-            if ($this->login === $user && $this->password == $password) {
-                $this->isValid = True;
-            }
+        $user = $this->users->findUser($this->login);
+        if ($user) {
+            $this->isValid = $this->users->validatePassword($user, $this->password);
         }
         return $this->isValid;
     }

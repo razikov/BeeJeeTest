@@ -33,7 +33,7 @@ $getErrors = function($model, $attribute) {
             <input type="text" 
                    class="form-control<?= $getValidCssClass($model, 'name') ?>" 
                    name="name" 
-                   value="<?= $model->name ?>">
+                   value="<?= $this->e($model->name) ?>">
                    <?php if ($hasErors($model, 'name')): ?>
                 <div class="invalid-feedback">
                     <?= $getErrors($model, 'name') ?>
@@ -47,7 +47,7 @@ $getErrors = function($model, $attribute) {
             <input type="text" 
                    class="form-control<?= $getValidCssClass($model, 'email') ?>" 
                    name="email"
-                   value="<?= $model->email ?>">
+                   value="<?= $this->e($model->email) ?>">
                    <?php if ($hasErors($model, 'email')): ?>
                 <div class="invalid-feedback">
                     <?= $getErrors($model, 'email') ?>
@@ -59,8 +59,8 @@ $getErrors = function($model, $attribute) {
         <label for="content" class="col-sm-3 col-form-label text-right">Текст задачи:</label>
         <div class="col-sm-9">
             <textarea class="form-control<?= $getValidCssClass($model, 'content') ?>" 
-                      name="content"><?= $model->content ?></textarea>
-                      <?php if ($hasErors($model, 'content')): ?>
+                      name="content"><?= $this->e($model->content) ?></textarea>
+            <?php if ($hasErors($model, 'content')): ?>
                 <div class="invalid-feedback">
                     <?= $getErrors($model, 'content') ?>
                 </div>
@@ -74,8 +74,9 @@ $getErrors = function($model, $attribute) {
                 <select class="form-control<?= $getValidCssClass($model, 'status') ?>" 
                         name="status"
                         value="<?= $model->status ?>">
-                    <option value="0"<?= $model->status == false ? ' selected' : '' ?>>В работе</option>
-                    <option value="1"<?= $model->status == true ? ' selected' : '' ?>>Выполнена</option>
+                <?php foreach ($model->getStatusList() as $value => $status): ?>
+                    <option value="<?= $this->e($value) ?>"<?= $model->status == $value ? ' selected' : '' ?>><?= $this->e($status) ?></option>
+                <?php endforeach; ?>
                 </select>
                 <?php if ($hasErors($model, 'status')): ?>
                     <div class="invalid-feedback">

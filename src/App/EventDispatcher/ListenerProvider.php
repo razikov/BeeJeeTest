@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events;
+namespace App\EventDispatcher;
 
 use Psr\EventDispatcher\ListenerProviderInterface;
 

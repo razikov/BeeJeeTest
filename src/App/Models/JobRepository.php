@@ -18,25 +18,13 @@ class JobRepository
         return $this->pdo->query('SELECT COUNT(id) FROM jobs')->fetchColumn();
     }
 
-    public function all(int $offset, int $limit, $order = ''): array
+    public function all($offset, $limit, $sort): array
     {
-        $validateAttribute = function($attribute) {
-            if (in_array($attribute, ['name', 'email', 'status'])) {
-                return $attribute;
-            } else {
-                return 'id';
-            }
-        };
-        if ($order) {
-            $direction = substr($order, 0, 1) == '-' ? 'DESC' : 'ASC';
-            $attribute = $direction == 'DESC' ? substr($order, 1) : $order;
-        } else {
-            $direction = 'DESC';
-            $attribute = 'id';
-        }
+        $orderBy = $sort->getOrderByFor(['name', 'email', 'status']);
+        
         $stmt = $this->pdo->prepare("
             SELECT *
-            FROM jobs ORDER BY {$validateAttribute($attribute)} {$direction} LIMIT :limit OFFSET :offset
+            FROM jobs ORDER BY {$orderBy} LIMIT :limit OFFSET :offset
         ");
 
         $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);

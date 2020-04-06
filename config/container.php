@@ -86,70 +86,66 @@ $container[League\Plates\Engine::class] = function($c) {
     $template->loadExtension($asset);
     return $template;
 };
-$container['templateRenderer'] = function ($c) {
-    $asset = new League\Plates\Extension\Asset($c['assetsPath']);
-    $template = new League\Plates\Engine($c['viewsPath']);
-    $template->loadExtension($asset);
-    return $template;
-};
-
-//$container['router'] = function($c) {
-//    $router = new Aura\Router\RouterContainer();
-//    $map = $router->getMap();
-//    $map->get('task.list', '/', [\App\Controller\JobController::class, 'indexAction']);
-//    $map->get('task.loginForm', '/login', [\App\Controller\SiteController::class, 'loginAction']);
-//    $map->post('task.login', '/login', [\App\Controller\SiteController::class, 'loginAction']);
-//    $map->get('task.logout', '/logout', [\App\Controller\SiteController::class, 'logoutAction']);
-//    $map->get('task.createForm', '/create', [\App\Controller\JobController::class, 'createAction']);
-//    $map->post('task.create', '/create', [\App\Controller\JobController::class, 'createAction']);
-//    $map->get('task.updateForm', '/update/{id}', [\App\Controller\JobController::class, 'updateAction']);
-//    $map->post('task.update', '/update/{id}', [\App\Controller\JobController::class, 'updateAction']);
-//    return $router;
-//};
 
 $container['router'] = function($c) {
-    $psrContainer = new \Pimple\Psr11\Container($c);
+    $psrContainer = new Pimple\Psr11\Container($c);
     $strategy = (new App\ApplicationStrategy)->setContainer($psrContainer);
     $router = (new League\Route\Router)->setStrategy($strategy);
-    $router->map('GET', '/', [App\Controller\JobController::class, 'indexAction']);
-    $router->map('GET', '/test', [App\Controller\SiteController::class, 'testAction']);
-    $router->map('GET', '/login', [App\Controller\SiteController::class, 'loginAction']);
-    $router->map('POST', '/login', [App\Controller\SiteController::class, 'loginAction']);
-    $router->map('GET', '/logout', [App\Controller\SiteController::class, 'logoutAction']);
-    $router->map('GET', '/create', [App\Controller\JobController::class, 'createAction']);
-    $router->map('POST', '/create', [App\Controller\JobController::class, 'createAction']);
-    $router->map('GET', '/update/{id:number}', [App\Controller\JobController::class, 'updateAction'])
-        ->middleware(new \App\Middleware\Authorize('@'));
-    $router->map('POST', '/update/{id:number}', [App\Controller\JobController::class, 'updateAction'])
-        ->middleware(new \App\Middleware\Authorize('@'));
+//    $router->addPatternMatcher('word', '\w+');
+//    $router->addPatternMatcher('sort_chars', '[\-\+]{0,1}');
+    $router->get('/', [App\Controllers\JobController::class, 'indexAction']);
+//    $router->get('/sort/{attribute:word}{direction:sort_chars}', [App\Controllers\JobController::class, 'indexAction']);
+//    $router->get('/sort/{attribute:word}{direction:sort_chars}/page/{page:number}', [App\Controllers\JobController::class, 'indexAction']);
+//    $router->get('/page/{page:number}', [App\Controllers\JobController::class, 'indexAction']);
+    $router->map('GET', '/test', [App\Controllers\SiteController::class, 'testAction']);
+    $router->map('GET', '/login', [App\Controllers\SiteController::class, 'loginAction']);
+    $router->map('POST', '/login', [App\Controllers\SiteController::class, 'loginAction']);
+    $router->map('GET', '/logout', [App\Controllers\SiteController::class, 'logoutAction']);
+    $router->map('GET', '/create', [App\Controllers\JobController::class, 'createAction']);
+    $router->map('POST', '/create', [App\Controllers\JobController::class, 'createAction']);
+    $router->map('GET', '/update/{id:number}', [App\Controllers\JobController::class, 'updateAction'])
+        ->middleware(new \App\Middlewares\Authorize('@'));
+    $router->map('POST', '/update/{id:number}', [App\Controllers\JobController::class, 'updateAction'])
+        ->middleware(new \App\Middlewares\Authorize('@'));
     $router->middleware(new \Mezzio\Session\SessionMiddleware(new \Mezzio\Session\Ext\PhpSessionPersistence()));
     $router->middleware(new \Mezzio\Flash\FlashMessageMiddleware());
-    $router->middleware(new \App\Middleware\SessionAuthenticate($c['userManager']));
+    $router->middleware(new \App\Middlewares\SessionAuthenticate($c[App\Models\UserManager::class]));
     return $router;
 };
 
 // ===== APP =========
-$container[App\Controller\SiteController::class] = function($c) {
-    $psrContainer = new \Pimple\Psr11\Container($c);
-    return new App\Controller\SiteController($psrContainer);
+$container[App\Controllers\SiteController::class] = function($c) {
+    return new App\Controllers\SiteController(
+        $c[\League\Plates\Engine::class],
+        $c[\Psr\EventDispatcher\EventDispatcherInterface::class],
+        $c[\App\Models\UserManager::class]
+    );
 };
-$container[App\Controller\JobController::class] = function($c) {
-    $psrContainer = new \Pimple\Psr11\Container($c);
-    return new App\Controller\JobController($psrContainer);
+$container[App\Controllers\JobController::class] = function($c) {
+    return new App\Controllers\JobController(
+        $c[\League\Plates\Engine::class],
+        $c[\Psr\EventDispatcher\EventDispatcherInterface::class],
+        $c[\App\Services\JobService::class]
+    );
 };
 $container[App\Models\JobRepository::class] = function($c) {
     return new App\Models\JobRepository($c[\PDO::class], $c['em']);
-};// дубль
-$container['userManager'] = function ($c) {
+};
+$container[\App\Services\JobService::class] = function($c) {
+    return new \App\Services\JobService(
+        $c[App\Models\JobRepository::class],
+        $c[Psr\EventDispatcher\EventDispatcherInterface::class]
+    );
+};
+$container[App\Models\UserManager::class] = function ($c) {
     return new \App\Models\UserManager($c['adminUsers']);
 };
-$container[App\Events\EventDispatcher::class] = function ($c) {
-    return new App\Events\EventDispatcher($c[App\Events\ListenerProvider::class]);
+$container[Psr\EventDispatcher\EventDispatcherInterface::class] = function ($c) {
+    return new App\EventDispatcher\EventDispatcher($c[Psr\EventDispatcher\ListenerProviderInterface::class]);
 };
-$container[App\Events\ListenerProvider::class] = function ($c) {
-    $lp = new App\Events\ListenerProvider();
-    $lp->add(App\Events\BeforeActionEvent::class, 0, [App\Controller\BaseController::class, 'beforeActionForEvent']);
-//    $lp->add(App\Events\AfterActionEvent::class, 0, [App\Controller\BaseController::class, 'afterActionForEvent']);
+$container[Psr\EventDispatcher\ListenerProviderInterface::class] = function ($c) {
+    $lp = new App\EventDispatcher\ListenerProvider();
+//    $lp->add(App\Events\BeforeActionEvent::class, 0, [App\Controllers\BaseController::class, 'beforeActionForEvent']);
     return $lp;
 };
 

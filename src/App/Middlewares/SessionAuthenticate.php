@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Middleware;
+namespace App\Middlewares;
 
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
