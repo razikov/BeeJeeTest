@@ -30,6 +30,5 @@ class Authorize implements MiddlewareInterface
             return new \Laminas\Diactoros\Response\RedirectResponse('/login');
         }
         return $handler->handle($request);
-        
     }
 }

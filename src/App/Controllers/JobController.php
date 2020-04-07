@@ -23,7 +23,7 @@ class JobController extends BaseController
         parent::__construct($engine, $dispatcher);
     }
     
-    public function indexAction(ServerRequestInterface $request) : ResponseInterface
+    public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
         $getParams = $request->getQueryParams();
         $pager = new Pagination(
@@ -40,20 +40,18 @@ class JobController extends BaseController
         ]);
     }
     
-    public function createAction(ServerRequestInterface $request) : ResponseInterface
+    public function createAction(ServerRequestInterface $request): ResponseInterface
     {
         $form = new JobForm();
         
         if ($form->load($request->getParsedBody()) && $form->validate()) {
             try {
                 $this->jobServices->create($form);
-//                Yii::$app->session->setFlash('success', 'Задача создана.');
-                $this->setFlash('successMessage', 'Задача создана.');
+                $this->setFlash('success', 'Задача создана.');
                 return $this->redirect('/');
             } catch (DomainException $e) {
-//                Yii::$app->errorHandler->logException($e);
-//                Yii::$app->session->setFlash('error', $e->getMessage());                
-                $this->setFlash('failMessage', $e->getMessage());                
+//                $this->logException($e);
+                $this->setFlash('error', $e->getMessage());
             }
         }
         
@@ -63,7 +61,7 @@ class JobController extends BaseController
         ]);
     }
     
-    public function updateAction(ServerRequestInterface $request) : ResponseInterface
+    public function updateAction(ServerRequestInterface $request): ResponseInterface
     {
         $id = (int)$request->getAttribute('id');
         $job = $this->jobServices->getJob($id);
@@ -72,11 +70,11 @@ class JobController extends BaseController
         if ($form->load($request->getParsedBody()) && $form->validate()) {
             try {
                 $this->jobServices->update($job, $form);
-                $this->setFlash('successMessage', 'Задача сохранена.');
+                $this->setFlash('success', 'Задача сохранена.');
                 return $this->redirect('/');
             } catch (DomainException $e) {
-//                Yii::$app->errorHandler->logException($e);
-                $this->setFlash('failMessage', $e->getMessage());                
+//                $this->logException($e);
+                $this->setFlash('error', $e->getMessage());
             }
         }
         

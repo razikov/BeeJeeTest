@@ -21,7 +21,7 @@ class SiteController extends BaseController
         parent::__construct($engine, $dispatcher);
     }
     
-    public function loginAction(ServerRequestInterface $request) : ResponseInterface
+    public function loginAction(ServerRequestInterface $request): ResponseInterface
     {
         $model = new LoginForm($this->users);
         
@@ -36,7 +36,7 @@ class SiteController extends BaseController
         }
     }
     
-    public function logoutAction(ServerRequestInterface $request) : ResponseInterface
+    public function logoutAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->session->clear();
         

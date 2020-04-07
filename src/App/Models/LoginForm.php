@@ -9,8 +9,8 @@ class LoginForm
     public $login;
     public $password;
     
-    public $isValid = False;
-    public $isLoad = False;
+    public $isValid = false;
+    public $isLoad = false;
     
     public function __construct(UserManager $userManager)
     {
@@ -22,7 +22,7 @@ class LoginForm
         foreach ($params as $attribute => $value) {
             if (property_exists($this, $attribute)) {
                 $this->$attribute = $value;
-                $this->isLoad = True;
+                $this->isLoad = true;
             }
         }
         return $this->isLoad;

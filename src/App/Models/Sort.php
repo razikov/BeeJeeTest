@@ -46,5 +46,4 @@ class Sort
             return $default;
         }
     }
-    
 }

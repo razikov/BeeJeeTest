@@ -1,5 +1,6 @@
-<?php ?>
+<?php
 
+?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -15,25 +16,23 @@
         <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
             <div class="container d-flex justify-content-between">
                 <a class="navbar-brand" href="/">Трекер задач</a>
-                <?php if ($isAdmin): ?>
+                <?php if ($isAdmin) : ?>
                     <a href="/logout" class="d-flex align-right btn btn-light">Выйти</a>
-                <?php else: ?>
+                <?php else : ?>
                     <a href="/login" class="d-flex align-right btn btn-light">Войти</a>
                 <?php endif; ?>
             </div>
         </nav>
         <main role="main" class="container">
-            <?php if ($flashes): ?>
-                <?php if (isset($flashes['successMessage'])): ?>
-                    <div class="alert alert-success" role="alert">
-                        <?= $flashes['successMessage'] ?>
-                    </div>
-                <?php endif; ?>
-                <?php if (isset($flashes['failMessage'])): ?>
-                    <div class="alert alert-danger" role="alert">
-                        <?= $flashes['failMessage'] ?>
-                    </div>
-                <?php endif; ?>
+            <?php if (isset($flashes['success'])) : ?>
+                <div class="alert alert-success" role="alert">
+                    <?= $flashes['success'] ?>
+                </div>
+            <?php endif; ?>
+            <?php if (isset($flashes['error'])) : ?>
+                <div class="alert alert-danger" role="alert">
+                    <?= $flashes['error'] ?>
+                </div>
             <?php endif; ?>
             <div class="">
                 <?= $this->section('content') ?>

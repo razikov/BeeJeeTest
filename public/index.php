@@ -1,15 +1,19 @@
 <?php
-chdir(dirname(__DIR__));
-require_once __DIR__.'/../vendor/autoload.php';
 
-$whoops = new \Whoops\Run;
-$whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+chdir(dirname(__DIR__));
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$whoops = new \Whoops\Run();
+$whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
 $whoops->register();
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/../');
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-require_once __DIR__.'/../src/App/Application.php';
-$container = require_once __DIR__.'/../config/container.php';
+$container = require_once __DIR__ . '/../config/container.php';
+$router = $container->get('router');
+$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals();
+$response = $router->dispatch($request);
 
-(new App\Application($container))->run();
+$emit = new \Laminas\HttpHandlerRunner\Emitter\SapiEmitter();
+$emit->emit($response);

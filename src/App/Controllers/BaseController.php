@@ -65,7 +65,5 @@ class BaseController
     
     public function afterAction($event)
     {
-        
     }
-    
 }

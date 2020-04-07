@@ -116,6 +116,4 @@ class Job
             'edited_by_admin' => $this->edited_by_admin,
         ];
     }
-
-
 }

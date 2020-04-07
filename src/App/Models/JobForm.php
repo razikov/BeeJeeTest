@@ -77,7 +77,7 @@ class JobForm
             'status' => [
                 new \Symfony\Component\Validator\Constraints\Choice([
                     'choices' => [0, 1, '0', '1', true, false],
-                    'message' => 'Значение должно быть одним из: ['. implode('; ', $this->getStatusList()).'].',
+                    'message' => 'Значение должно быть одним из: [' . implode('; ', $this->getStatusList()) . '].',
                 ]),
             ],
             'content' => [
@@ -134,5 +134,4 @@ class JobForm
             'status' => $this->status,
         ];
     }
-
 }

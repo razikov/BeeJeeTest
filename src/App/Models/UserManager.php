@@ -4,7 +4,7 @@ namespace App\Models;
 
 class UserManager
 {
-    const KEY = 'username';
+    public const KEY = 'username';
     
     private $users;
     

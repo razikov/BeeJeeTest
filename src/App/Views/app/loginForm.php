@@ -1,7 +1,8 @@
-<?php 
+<?php
+
 $this->layout('layout/main', ['isAdmin' => $isAdmin, 'flashes' => $flashes]);
 
-$hasErors = function($model) {
+$hasErors = function ($model) {
     if ($model->isLoad && !$model->isValid) {
         return true;
     }
@@ -10,7 +11,7 @@ $hasErors = function($model) {
 ?>
 
 <div class="text-center">
-    <form method="POST" action="/login" class="form-signin">
+    <form method="POST" action="<?= $this->url('login') ?>" class="form-signin">
         <h1 class="h5 mb-3 font-weight-normal">Пожайлуйста авторизуйтесь</h1>
         <label for="login" class="sr-only">Логин</label>
         <input type="text" 
@@ -26,7 +27,7 @@ $hasErors = function($model) {
                class="form-control" 
                placeholder="Пароль" 
                required="">
-        <?php if ($hasErors($model)): ?>
+        <?php if ($hasErors($model)) : ?>
             <div class="text-danger">
                 Пара логин/пароль некорректна! Попробуйте снова.
             </div>

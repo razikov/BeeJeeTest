@@ -1,6 +1,6 @@
 <?php
 
-$container = new \Pimple\Container;
+$container = new \Pimple\Container();
 
 // ===== PARAMS =========
 $container['dbParams'] = [
@@ -13,9 +13,9 @@ $container['dbParams'] = [
 $container['adminUsers'] = [
     getenv('ADMIN_LOGIN') => getenv('ADMIN_PASSWORD')
 ];
-$container['entityPath'] = [__DIR__."/../src/App/Entity"];
-$container['viewsPath'] = __DIR__.'/../src/App/Views';
-$container['assetsPath'] = __DIR__.'/../public/';
+$container['entityPath'] = [__DIR__ . "/../src/App/Entity"];
+$container['viewsPath'] = __DIR__ . '/../src/App/Views';
+$container['assetsPath'] = __DIR__ . '/../public/';
 //$container['rules'] = [
 //    'login' => [
 //        'login' => [
@@ -58,7 +58,7 @@ $container['assetsPath'] = __DIR__.'/../public/';
 //];
 
 // ===== SERVICES =========
-$container['annotationConfig'] = function($c) {
+$container['annotationConfig'] = function ($c) {
     $isDevMode = true;
     $proxyDir = null;
     $cache = null;
@@ -66,10 +66,10 @@ $container['annotationConfig'] = function($c) {
     $paths = $c['entityPath'];
     return Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, $proxyDir, $cache, $useSimpleAnnotationReader);
 };
-$container['em'] = function($c) {
+$container['em'] = function ($c) {
     return Doctrine\ORM\EntityManager::create($c['dbParams'], $c['annotationConfig']);
 };
-$container[\PDO::class] = function($c) {
+$container[\PDO::class] = function ($c) {
     $pdo = new \PDO(
         sprintf('mysql:host=%s;dbname=%s', $c['dbParams']['host'], $c['dbParams']['dbname']),
         $c['dbParams']['user'],
@@ -80,32 +80,35 @@ $container[\PDO::class] = function($c) {
     );
     return $pdo;
 };
-$container[League\Plates\Engine::class] = function($c) {
+$container[League\Plates\Engine::class] = function ($c) {
     $asset = new League\Plates\Extension\Asset($c['assetsPath']);
+    $url = new \App\PlatesUrlExtension($c[\App\UrlHelper::class]);
     $template = new League\Plates\Engine($c['viewsPath']);
     $template->loadExtension($asset);
+    $template->loadExtension($url);
     return $template;
 };
 
-$container['router'] = function($c) {
+$container['router'] = function ($c) {
     $psrContainer = new Pimple\Psr11\Container($c);
-    $strategy = (new App\ApplicationStrategy)->setContainer($psrContainer);
-    $router = (new League\Route\Router)->setStrategy($strategy);
+    $strategy = (new App\ApplicationStrategy())->setContainer($psrContainer);
+    $router = (new App\Router())->setStrategy($strategy);
 //    $router->addPatternMatcher('word', '\w+');
 //    $router->addPatternMatcher('sort_chars', '[\-\+]{0,1}');
-    $router->get('/', [App\Controllers\JobController::class, 'indexAction']);
+    $router->get('/', [App\Controllers\JobController::class, 'indexAction'])->setName('jobList');
 //    $router->get('/sort/{attribute:word}{direction:sort_chars}', [App\Controllers\JobController::class, 'indexAction']);
 //    $router->get('/sort/{attribute:word}{direction:sort_chars}/page/{page:number}', [App\Controllers\JobController::class, 'indexAction']);
 //    $router->get('/page/{page:number}', [App\Controllers\JobController::class, 'indexAction']);
-    $router->map('GET', '/test', [App\Controllers\SiteController::class, 'testAction']);
-    $router->map('GET', '/login', [App\Controllers\SiteController::class, 'loginAction']);
-    $router->map('POST', '/login', [App\Controllers\SiteController::class, 'loginAction']);
-    $router->map('GET', '/logout', [App\Controllers\SiteController::class, 'logoutAction']);
-    $router->map('GET', '/create', [App\Controllers\JobController::class, 'createAction']);
-    $router->map('POST', '/create', [App\Controllers\JobController::class, 'createAction']);
-    $router->map('GET', '/update/{id:number}', [App\Controllers\JobController::class, 'updateAction'])
+//    $router->map('GET', '/test[/page/{page:number}[/attribute/{attribute:word}]]', [App\Controllers\SiteController::class, 'testAction']);
+    $router->map('GET', '/test/{id:number}[/test/{test}[/test2/{abs}]]', [App\Controllers\TestAction::class, 'handle'])->setName('test');
+    $router->map('GET', '/login', [App\Controllers\SiteController::class, 'loginAction'])->setName('loginForm');
+    $router->map('POST', '/login', [App\Controllers\SiteController::class, 'loginAction'])->setName('login');
+    $router->map('GET', '/logout', [App\Controllers\SiteController::class, 'logoutAction'])->setName('logout');
+    $router->map('GET', '/create', [App\Controllers\JobController::class, 'createAction'])->setName('createForm');
+    $router->map('POST', '/create', [App\Controllers\JobController::class, 'createAction'])->setName('create');
+    $router->map('GET', '/update/{id:number}', [App\Controllers\JobController::class, 'updateAction'])->setName('updateForm')
         ->middleware(new \App\Middlewares\Authorize('@'));
-    $router->map('POST', '/update/{id:number}', [App\Controllers\JobController::class, 'updateAction'])
+    $router->map('POST', '/update/{id:number}', [App\Controllers\JobController::class, 'updateAction'])->setName('update')
         ->middleware(new \App\Middlewares\Authorize('@'));
     $router->middleware(new \Mezzio\Session\SessionMiddleware(new \Mezzio\Session\Ext\PhpSessionPersistence()));
     $router->middleware(new \Mezzio\Flash\FlashMessageMiddleware());
@@ -114,24 +117,24 @@ $container['router'] = function($c) {
 };
 
 // ===== APP =========
-$container[App\Controllers\SiteController::class] = function($c) {
+$container[App\Controllers\SiteController::class] = function ($c) {
     return new App\Controllers\SiteController(
         $c[\League\Plates\Engine::class],
         $c[\Psr\EventDispatcher\EventDispatcherInterface::class],
         $c[\App\Models\UserManager::class]
     );
 };
-$container[App\Controllers\JobController::class] = function($c) {
+$container[App\Controllers\JobController::class] = function ($c) {
     return new App\Controllers\JobController(
         $c[\League\Plates\Engine::class],
         $c[\Psr\EventDispatcher\EventDispatcherInterface::class],
         $c[\App\Services\JobService::class]
     );
 };
-$container[App\Models\JobRepository::class] = function($c) {
+$container[App\Models\JobRepository::class] = function ($c) {
     return new App\Models\JobRepository($c[\PDO::class], $c['em']);
 };
-$container[\App\Services\JobService::class] = function($c) {
+$container[\App\Services\JobService::class] = function ($c) {
     return new \App\Services\JobService(
         $c[App\Models\JobRepository::class],
         $c[Psr\EventDispatcher\EventDispatcherInterface::class]
@@ -145,8 +148,15 @@ $container[Psr\EventDispatcher\EventDispatcherInterface::class] = function ($c) 
 };
 $container[Psr\EventDispatcher\ListenerProviderInterface::class] = function ($c) {
     $lp = new App\EventDispatcher\ListenerProvider();
-//    $lp->add(App\Events\BeforeActionEvent::class, 0, [App\Controllers\BaseController::class, 'beforeActionForEvent']);
+    $lp->add(\App\Events\BeforeActionEvent::class, 'urlHelper.beforeAction', function ($event) use ($c) {
+        $urlHelper = $c[\App\UrlHelper::class];
+        $urlHelper->setRequest($event->request);
+//        var_dump('ok');exit;
+    });
     return $lp;
+};
+$container[\App\UrlHelper::class] = function ($c) {
+    return new \App\UrlHelper($c['router']);
 };
 
 return new \Pimple\Psr11\Container($container);
