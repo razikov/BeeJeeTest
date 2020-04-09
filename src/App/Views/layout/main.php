@@ -17,9 +17,9 @@
             <div class="container d-flex justify-content-between">
                 <a class="navbar-brand" href="/">Трекер задач</a>
                 <?php if ($isAdmin) : ?>
-                    <a href="/logout" class="d-flex align-right btn btn-light">Выйти</a>
+                    <a href="<?= $this->url('logout')?>" class="d-flex align-right btn btn-light">Выйти</a>
                 <?php else : ?>
-                    <a href="/login" class="d-flex align-right btn btn-light">Войти</a>
+                    <a href="<?= $this->url('login')?>" class="d-flex align-right btn btn-light">Войти</a>
                 <?php endif; ?>
             </div>
         </nav>

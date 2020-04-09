@@ -4,9 +4,9 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\LoginForm;
-use App\Models\User;
-use App\Models\UserManager;
+use App\Models\UserRepository;
 use League\Plates\Engine;
+use Mezzio\Authentication\AuthenticationInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -14,10 +14,12 @@ use Psr\Http\Message\ServerRequestInterface;
 class SiteController extends BaseController
 {
     protected $users;
+    protected $auth;
 
-    public function __construct(Engine $engine, EventDispatcherInterface $dispatcher, UserManager $users)
+    public function __construct(Engine $engine, EventDispatcherInterface $dispatcher, UserRepository $users, AuthenticationInterface $auth)
     {
         $this->users = $users;
+        $this->auth = $auth;
         parent::__construct($engine, $dispatcher);
     }
     
@@ -26,14 +28,19 @@ class SiteController extends BaseController
         $model = new LoginForm($this->users);
         
         if ($model->load($request->getParsedBody()) && $model->validate()) {
-            $this->session->set(User::KEY, $model->login);
-            return $this->redirect('/');
-        } else {
-            return $this->render('app/loginForm', [
-                'model' => $model,
-                'isAdmin' => $this->isAdmin,
-            ]);
+            $this->auth->authenticate($request);
+            $defaultRedirect = '/';
+            $redirect = $this->session->get(self::REDIRECT_ATTRIBUTE, $defaultRedirect);
+            if (strpos($redirect, '/login') !== false) {
+                $redirect = $defaultRedirect;
+            }
+            $this->session->unset(self::REDIRECT_ATTRIBUTE);
+            return $this->redirect($redirect);
         }
+        
+        return $this->render('app/loginForm', [
+            'model' => $model,
+        ]);
     }
     
     public function logoutAction(ServerRequestInterface $request): ResponseInterface

@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace TaskBoard\Services;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
-use App\Entity\Task;
-use App\Models\TaskForm;
+use TaskBoard\Entities\Task;
 
 class TaskService
 {

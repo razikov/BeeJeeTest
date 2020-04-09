@@ -42,6 +42,7 @@ class JobController extends BaseController
     
     public function createAction(ServerRequestInterface $request): ResponseInterface
     {
+        $csrfGuard = $request->getAttribute('__csrf');
         $form = new JobForm();
         
         if ($form->load($request->getParsedBody()) && $form->validate()) {
@@ -57,12 +58,14 @@ class JobController extends BaseController
         
         return $this->render('app/form', [
             'model' => $form,
+            '__csrf' => $csrfGuard->generateToken(),
             'id' => null,
         ]);
     }
     
     public function updateAction(ServerRequestInterface $request): ResponseInterface
     {
+        $csrfGuard = $request->getAttribute('__csrf');
         $id = (int)$request->getAttribute('id');
         $job = $this->jobServices->getJob($id);
         $form = new JobForm($job->getDto());
@@ -80,6 +83,7 @@ class JobController extends BaseController
         
         return $this->render('app/form', [
             'model' => $form,
+            '__csrf' => $csrfGuard->generateToken(),
             'id' => $id,
         ]);
     }

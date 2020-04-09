@@ -2,8 +2,42 @@
 
 namespace App;
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
 class Router extends \League\Route\Router
 {
+    private $dispatcher;
+    
+    public function match($httpMethod, $uri)
+    {
+        return $this->dispatcher->dispatch($httpMethod, $uri);
+    }
+    
+    public function dispatch(ServerRequestInterface $request): ResponseInterface
+    {
+        if ($this->getStrategy() === null) {
+            $this->setStrategy(new \League\Route\Strategy\ApplicationStrategy());
+        }
+
+        $this->prepRoutes($request);
+
+        /** @var Dispatcher $dispatcher */
+        $dispatcher = (new Dispatcher($this->getData()))->setStrategy($this->getStrategy());
+        $this->dispatcher = $dispatcher;
+
+        foreach ($this->getMiddlewareStack() as $middleware) {
+            if (is_string($middleware)) {
+                $dispatcher->lazyMiddleware($middleware);
+                continue;
+            }
+
+            $dispatcher->middleware($middleware);
+        }
+        
+        return $dispatcher->dispatchRequest($request);
+    }
+    
     public function generateUri(string $routeName, array $params, array $options = []): string
     {
         $anchor = isset($params['#']) ? '#' . $params['#'] : '';

@@ -16,7 +16,7 @@ class JobForm
     public $name;
     public $email;
     public $content;
-    public $status;
+    public $status = self::STATUS_IN_PROGRESS;
     
     public $errors = [];
     public $isLoad = false;

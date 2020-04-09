@@ -14,6 +14,5 @@ $container = require_once __DIR__ . '/../config/container.php';
 $router = $container->get('router');
 $request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals();
 $response = $router->dispatch($request);
-
 $emit = new \Laminas\HttpHandlerRunner\Emitter\SapiEmitter();
 $emit->emit($response);

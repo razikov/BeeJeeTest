@@ -38,8 +38,7 @@ $getSortUrl = function ($getAttr, $targetAttr) use ($reverseSort, $q) {
 <?php $this->layout('layout/main', ['isAdmin' => $isAdmin, 'flashes' => $flashes]) ?>
     
 <div class="d-flex p-2">
-    <!--<a href="/create" class="btn btn-primary js-form-modal">Добавить</a>-->
-    <a href="<?= $this->url('createForm') ?>" class="btn btn-primary js-form-modal">Добавить</a>
+    <a href="<?= $this->url('job.create') ?>" class="btn btn-primary js-form-modal">Добавить</a>
 </div>
 <table class="table">
     <thead>
@@ -75,7 +74,7 @@ $getSortUrl = function ($getAttr, $targetAttr) use ($reverseSort, $q) {
             </td>
             <td scope="col">
                 <?php if ($isAdmin) : ?>
-                <a href="<?= $this->url('updateForm', ['id' => $job['id']]) ?>" title="Редактировать"><img src="/img/edit.svg"></a>
+                <a href="<?= $this->url('job.update', ['id' => $job['id']]) ?>" title="Редактировать"><img src="/img/edit.svg"></a>
                 <?php endif; ?>
             </td>
         </tr>

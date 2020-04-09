@@ -16,7 +16,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Laminas\Diactoros\Response;
 use Throwable;
 
-class ApplicationStrategy extends DefaultApplicationStrategy
+class ApplicationStrategy extends DefaultApplicationStrategy implements StrategyInterface
 {
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface
     {
@@ -59,31 +59,37 @@ class ApplicationStrategy extends DefaultApplicationStrategy
 //        return;
 //    }
 //    
-//    public function getNotFoundDecorator($exception): MiddlewareInterface
-//    {
-//        return new class ($exception, $this->container->get(Engine::class)) implements MiddlewareInterface
-//        {
-//            protected $error;
-//            private $templateRenderer;
-//
-//            public function __construct(Throwable $error, Engine $templateRenderer)
-//            {
-//                $this->error = $error;
-//                $this->templateRenderer = $templateRenderer;
-//            }
-//
-//            public function process(
-//                ServerRequestInterface $request,
-//                RequestHandlerInterface $requestHandler
-//            ): ResponseInterface {
-//                $response = new Response();
-//                $response->getBody()->write(
-//                    $this->templateRenderer
-//                        ->render('app/404', ['e' => $this->error])
-//                );
-//                $response->withStatus($this->error->getStatusCode());
-//                return $response;
-//            }
-//        };
-//    }
+    public function getNotFoundDecorator($exception): MiddlewareInterface
+    {
+        return new class ($exception, $this->container->get(Engine::class)) implements MiddlewareInterface
+        {
+            protected $error;
+            private $templateRenderer;
+
+            public function __construct(Throwable $error, Engine $templateRenderer)
+            {
+                $this->error = $error;
+                $this->templateRenderer = $templateRenderer;
+            }
+
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $requestHandler
+            ): ResponseInterface {
+                $response = new Response();
+                $response->getBody()->write(
+                    $this->templateRenderer
+                        ->render('app/404', ['e' => $this->error])
+                );
+                $response->withStatus($this->error->getStatusCode());
+                return $response;
+            }
+        };
+    }
+
+    public function isPrependThrowableDecorator(): bool
+    {
+        return false;
+    }
+
 }

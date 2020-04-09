@@ -5,12 +5,14 @@ namespace App\Controllers;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\RedirectResponse;
 use League\Plates\Engine;
+use Mezzio\Authentication\UserInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 class BaseController
 {
+    public const REDIRECT_ATTRIBUTE = 'authentication:redirect';
+    
     protected $templateEngine;
     protected $dispatcher;
     
@@ -30,6 +32,7 @@ class BaseController
         $response = new Response();
         $params['flashes'] = $this->flashMessages->getFlashes();
         $params['isAdmin'] = $this->isAdmin;
+//        var_dump($params);exit;
         
         $response->getBody()->write($this->templateEngine->render($view, $params));
         $response->withStatus(200);
@@ -60,7 +63,7 @@ class BaseController
         $request = $event->request;
         $this->flashMessages = $request->getAttribute('flash');
         $this->session = $request->getAttribute('session');
-        $this->isAdmin = $request->getAttribute('user') !== null;
+        $this->isAdmin = $request->getAttribute(UserInterface::class) !== null;
     }
     
     public function afterAction($event)

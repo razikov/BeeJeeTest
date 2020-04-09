@@ -27,7 +27,7 @@ $getErrors = function ($model, $attribute) {
 };
 ?>
 
-<form method="POST" action="<?= $id ? $this->url('update', ['id' => $id]) : $this->url('create') ?>">
+<form method="POST" action="<?= $id ? $this->url('job.update', ['id' => $id]) : $this->url('job.create') ?>">
     <div class="form-group row">
         <label for="name" class="col-sm-3 col-form-label text-right">Имя:</label>
         <div class="col-sm-9">
@@ -87,9 +87,9 @@ $getErrors = function ($model, $attribute) {
                     </div>
                 <?php endif; ?>
             </div>
-
         </div>
     <?php endif; ?>
+    <input type="hidden" name="__csrf" value="<?= $__csrf ?>">
     <div class="form-group row">
         <div class="col-sm-3 col-form-label text-right"></div>
         <div class="col-sm-9">

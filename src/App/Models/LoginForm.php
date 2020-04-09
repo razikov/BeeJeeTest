@@ -12,7 +12,7 @@ class LoginForm
     public $isValid = false;
     public $isLoad = false;
     
-    public function __construct(UserManager $userManager)
+    public function __construct(UserRepository $userManager)
     {
         $this->users = $userManager;
     }
@@ -30,10 +30,6 @@ class LoginForm
     
     public function validate()
     {
-        $user = $this->users->findUser($this->login);
-        if ($user) {
-            $this->isValid = $this->users->validatePassword($user, $this->password);
-        }
-        return $this->isValid;
+        return $this->users->authenticate($this->login, $this->password) !== null;
     }
 }
