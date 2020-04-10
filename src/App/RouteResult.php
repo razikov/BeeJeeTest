@@ -9,7 +9,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class RouteResult implements MiddlewareInterface
 {
-    // @see FastRoute\Dispatcher const
     private $success;
     private $route = null;
     private $matchedParams = [];
@@ -57,6 +56,11 @@ class RouteResult implements MiddlewareInterface
     public function isSuccess(): bool
     {
         return $this->success;
+    }
+    
+    public function isFailed(): bool
+    {
+        return !$this->isSuccess();
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

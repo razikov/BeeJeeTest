@@ -32,7 +32,6 @@ class BaseController
         $response = new Response();
         $params['flashes'] = $this->flashMessages->getFlashes();
         $params['isAdmin'] = $this->isAdmin;
-//        var_dump($params);exit;
         
         $response->getBody()->write($this->templateEngine->render($view, $params));
         $response->withStatus(200);
@@ -44,7 +43,8 @@ class BaseController
     {
         $response = new Response();
         $response->getBody()->write(\json_encode($data));
-        $response->withAddedHeader('content-type', 'application/json')->withStatus(200);
+        $response->withAddedHeader('content-type', 'application/json');
+        $response->withStatus(200);
         return $response;
     }
     
@@ -58,7 +58,7 @@ class BaseController
         $this->flashMessages->flash($key, $content);
     }
     
-    public function beforeAction($event)
+    public function beforeAction(\App\Events\BeforeActionEvent $event)
     {
         $request = $event->request;
         $this->flashMessages = $request->getAttribute('flash');
@@ -66,7 +66,7 @@ class BaseController
         $this->isAdmin = $request->getAttribute(UserInterface::class) !== null;
     }
     
-    public function afterAction($event)
+    public function afterAction(\App\Events\AfterActionEvent $event)
     {
     }
 }

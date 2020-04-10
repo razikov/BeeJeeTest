@@ -1,12 +1,17 @@
-<?php declare(strict_types=1);
+<?php
 
 namespace App;
 
 use FastRoute\Dispatcher as FastRoute;
-use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use League\Route\Dispatcher as LeagueDispatcher;
+use League\Route\Http\Exception\MethodNotAllowedException;
+use League\Route\Http\Exception\NotFoundException;
+use League\Route\Strategy\StrategyInterface;
+use App\RouteResult;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
-class Dispatcher extends \League\Route\Dispatcher
+class Dispatcher extends LeagueDispatcher
 {
 
     public function match(ServerRequestInterface $request)

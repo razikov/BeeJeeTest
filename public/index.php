@@ -11,7 +11,10 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 $container = require_once __DIR__ . '/../config/container.php';
+$configureRoute = require __DIR__ . '/../config/routes.php';
 $router = $container->get('router');
+$configureRoute($router, $container);
+
 $request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals();
 $response = $router->dispatch($request);
 $emit = new \Laminas\HttpHandlerRunner\Emitter\SapiEmitter();

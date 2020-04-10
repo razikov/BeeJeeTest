@@ -3,7 +3,7 @@
 namespace App;
 
 use Laminas\Diactoros\ServerRequest;
-use League\Route\Router;
+use App\Router;
 
 class UrlHelper
 {
@@ -15,24 +15,23 @@ class UrlHelper
     public function __construct(Router $router)
     {
 //        TODO:
-//        не проверены группы
 //        нет кэширования
 //        не реализованы суффиксы: *.html
         
         $this->router = $router;
     }
     
-    public function setRequest($request)
+    public function setRequest(ServerRequest $request)
     {
         $this->request = $request;
     }
     
-    public function getCurrent()
+    public function getCurrentUri()
     {
         if (!$this->request) {
             return null;
         }
-        return $this->request->getUri()->getPath();
+        return $this->request->getUri();
     }
 
     public function createUrl($name, array $data = [])
@@ -43,11 +42,12 @@ class UrlHelper
 
     public function createAbsoluteUrl($name, array $data = [])
     {
-        if (!$this->request) {
-            return null;
+        $request = $this->request;
+        if (!$request) {
+            return $this->createUrl($name, $data);
         }
-        $scheme = $this->request->getUri()->getScheme();
-        $host = $this->request->getUri()->getHost();
+        $scheme = $request->getUri()->getScheme();
+        $host = $request->getUri()->getHost();
         $basePath = $scheme . '://' . $host;
         $url = $basePath . $this->createUrl($name, $data);
         return $url;
