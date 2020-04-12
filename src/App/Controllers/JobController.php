@@ -16,10 +16,12 @@ use Psr\Http\Message\ServerRequestInterface;
 class JobController extends BaseController
 {
     protected $jobServices;
+    protected $access;
 
-    public function __construct(Engine $engine, EventDispatcherInterface $dispatcher, JobService $jobService)
+    public function __construct(Engine $engine, EventDispatcherInterface $dispatcher, JobService $jobService, \App\AccessHelper $access)
     {
         $this->jobServices = $jobService;
+        $this->access = $access;
         parent::__construct($engine, $dispatcher);
     }
     
@@ -28,15 +30,16 @@ class JobController extends BaseController
         $getParams = $request->getQueryParams();
         $pager = new Pagination(
             $this->jobServices->countAll(),
-            $getParams
+            $getParams,
+            'jobList'
         );
         $sorter = new Sort($getParams);
         $jobs = $this->jobServices->getAll($pager, $sorter);
-        
+                
         return $this->render('app/index', [
             'jobs' => $jobs,
             'pager' => $pager,
-            'q' => $getParams,
+            'sorter' => $sorter,
         ]);
     }
     

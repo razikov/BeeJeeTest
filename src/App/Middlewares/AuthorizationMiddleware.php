@@ -4,28 +4,29 @@ namespace App\Middlewares;
 
 use App\Controllers\BaseController;
 use Laminas\Diactoros\Response\RedirectResponse;
+use Laminas\Permissions\Rbac\Rbac;
 use Mezzio\Authentication\UserInterface;
+use App\RouteResult;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Mezzio\Authorization\AuthorizationInterface;
 
 class AuthorizationMiddleware implements MiddlewareInterface
 {
     /**
-     * @var AuthorizationInterface
+     * @var Rbac
      */
-    private $authorization;
+    private $rbac;
 
     /**
      * @var callable
      */
     private $responseFactory;
 
-    public function __construct(AuthorizationInterface $authorization, callable $responseFactory)
+    public function __construct(Rbac $authorization, callable $responseFactory)
     {
-        $this->authorization = $authorization;
+        $this->rbac = $authorization;
 
         // Ensures type safety of the composed factory
         $this->responseFactory = function () use ($responseFactory): ResponseInterface {
@@ -47,9 +48,15 @@ class AuthorizationMiddleware implements MiddlewareInterface
 //            return ($this->responseFactory)()->withStatus(401); // unauthorized
         }
 
+        $routeResult = $request->getAttribute(RouteResult::class, false);
+        // No matching route. Everyone can access.
+        if ($routeResult->isFailed()) {
+            return $handler->handle($request);
+        }
         foreach ($user->getRoles() as $role) {
             // TODO: Роли: ? - гости, @ - аутентифицированные,
-            if ($this->authorization->isGranted($role, $request)) {
+            $routeName = $routeResult->getMatchedRouteName();
+            if ($this->rbac->isGranted($role, $routeName, null)) {
                 return $handler->handle($request);
             }
         }

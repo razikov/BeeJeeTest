@@ -14,7 +14,8 @@ class JobControllerFactory
         return new JobController(
             $container[Engine::class],
             $container[EventDispatcherInterface::class],
-            $container[JobService::class]
+            $container[JobService::class],
+            $container[\App\AccessHelper::class]
         );
     }
 }

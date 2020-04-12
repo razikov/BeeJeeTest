@@ -7,6 +7,7 @@ return [
         'em' => \App\ContainerFactories\EntityManagerFactory::class,
         \PDO::class => \App\ContainerFactories\PdoFactory::class,
         \Mezzio\Authorization\AuthorizationInterface::class => \App\ContainerFactories\AuthorizationServiceFactory::class,
+        Laminas\Permissions\Rbac\Rbac::class => App\ContainerFactories\RbacFactory::class,
         \League\Plates\Engine::class => \App\ContainerFactories\PlatesFactory::class,
         \App\Models\JobRepository::class => \App\ContainerFactories\JobRepositoryFactory::class,
         \App\Services\JobService::class => \App\ContainerFactories\JobServiceFactory::class,
@@ -49,6 +50,10 @@ return [
                 $urlHelper = $c[\App\UrlHelper::class];
                 $urlHelper->setRequest($event->request);
             });
+            $lp->add(\App\Events\BeforeActionEvent::class, 'accessHelper.beforeAction', function ($event) use ($c) {
+                $helper = $c[\App\AccessHelper::class];
+                $helper->setRequest($event->request);
+            });
             return $lp;
         },
         \App\UrlHelper::class => function ($c) {
@@ -65,7 +70,7 @@ return [
         },
         \App\Middlewares\AuthorizationMiddleware::class => function ($c) {
             return new App\Middlewares\AuthorizationMiddleware(
-                $c[Mezzio\Authorization\AuthorizationInterface::class],
+                $c[\Laminas\Permissions\Rbac\Rbac::class],
                 $c[Psr\Http\Message\ResponseInterface::class]
             );
         },
@@ -79,7 +84,22 @@ return [
             $log = new \Monolog\Logger('name');
             $log->pushHandler(new \Monolog\Handler\StreamHandler(__DIR__ . '/../runtime/application_warning.log', \Monolog\Logger::WARNING));
             return $log;
-        }
+        },
+        \App\AccessHelper::class => function ($c) {
+            return new \App\AccessHelper($c[\Laminas\Permissions\Rbac\Rbac::class], $c[\App\Rbac\AssertionProvider::class]);
+        },
+        \App\Rbac\AssertionProvider::class => function ($c) {
+            $provider = new \App\Rbac\AssertionProvider([
+                App\Rbac\OwnerAssertion::class => function ($params) {
+                    if (isset($params['identity']) && isset($params['model'])) {
+                        return new App\Rbac\OwnerAssertion($params['identity'], $params['model']);
+                    } else {
+                        return null;
+                    }
+                },
+            ]);
+            return $provider;
+        },
     ],
     'parameters' => [
         'dbParams' => [

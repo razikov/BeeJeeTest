@@ -2,8 +2,15 @@
 
 namespace App;
 
-use Laminas\Diactoros\ServerRequest;
 use App\Router;
+use DomainException;
+use Laminas\Diactoros\ServerRequest;
+use Laminas\Diactoros\Uri;
+use League\Uri\UriModifier;
+use League\Uri\UriString;
+
+use function array_merge;
+use function sprintf;
 
 class UrlHelper
 {
@@ -26,30 +33,46 @@ class UrlHelper
         $this->request = $request;
     }
     
-    public function getCurrentUri()
+    private function getCurrentUri()
     {
         if (!$this->request) {
-            return null;
+            throw DomainException("В компонент не передан экземпляр ServerRequest");
         }
         return $this->request->getUri();
     }
 
-    public function createUrl($name, array $data = [])
+    public function createUrl($name, array $data = [], bool $isAbsolute = false)
     {
-        $url = $this->router->generateUri($name, $data);
-        return $url;
+        $uri = new Uri($this->router->generateUri($name, $data));
+        if ($isAbsolute) {
+            $uri = $this->createAbsoluteUrl($uri);
+            return $uri->__toString();
+        } else {
+            $query = !empty($uri->getQuery()) ? "?" . $uri->getQuery() : '';
+            $fragment = !empty($uri->getFragment()) ? "#" . $uri->getFragment() : '';
+            return sprintf("%s%s%s", $uri->getPath(), $query, $fragment);
+        }
     }
 
-    public function createAbsoluteUrl($name, array $data = [])
+    private function createAbsoluteUrl($uri)
     {
-        $request = $this->request;
-        if (!$request) {
-            return $this->createUrl($name, $data);
+        $uriComponent = UriString::parse($uri);
+        $currentUri = $this->getCurrentUri();
+        $currentUriComponent = UriString::parse($currentUri);
+        $newUri = array_merge($currentUriComponent, $uriComponent);
+        return $newUri;
+    }
+    
+    public function modifyCurrentUrl(string $query, bool $isAbsolute = false)
+    {
+        $currentUri = $this->getCurrentUri();
+        $uri = UriModifier::mergeQuery($currentUri, $query);
+        if ($isAbsolute) {
+            return $uri->__toString();
+        } else {
+            $query = $uri->getQuery() ? "?" . $uri->getQuery() : '';
+            $fragment = $uri->getFragment() ? "#" . $uri->getFragment() : '';
+            return sprintf("%s%s%s", $uri->getPath(), $query, $fragment);
         }
-        $scheme = $request->getUri()->getScheme();
-        $host = $request->getUri()->getHost();
-        $basePath = $scheme . '://' . $host;
-        $url = $basePath . $this->createUrl($name, $data);
-        return $url;
     }
 }

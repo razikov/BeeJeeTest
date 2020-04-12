@@ -10,14 +10,20 @@ class Pagination
     private $page;
     private $perPage;
     private $args;
+    private $routeName;
 
-    public function __construct(int $totalCount, array $getParams)
+    public function __construct(int $totalCount, array $getParams, string $routeName)
     {
         $this->totalCount = $totalCount;
         $this->perPage = self::PER_PAGE;
-        $this->page = isset($getParams['page']) ? (int)$getParams['page'] : 1;
+        $page = isset($getParams['page']) ? (int)$getParams['page'] : 1;
+        if ($page > $this->getPagesCount()) {
+            $page = $this->getPagesCount();
+        }
+        $this->page = $page;
         unset($getParams['page']);
         $this->args = $getParams;
+        $this->routeName = $routeName;
     }
 
     public function getTotalCount(): int
@@ -56,8 +62,13 @@ class Pagination
         return ($this->page - 1) * $this->perPage;
     }
     
-    public function getArgs()
+    public function getRequestParams()
     {
         return $this->args;
+    }
+    
+    public function getRouteName()
+    {
+        return $this->routeName;
     }
 }

@@ -1,38 +1,31 @@
 <?php
 
-$sort = $q['sort'] ?? '';
-$reverseSort = function ($attribute) {
-    if (substr($attribute, 0, 1) == '-') {
-        return substr($attribute, 1);
-    } else {
-        return '-' . $attribute;
+$sort = $sorter->getSort();
+
+$reverseSort = function ($attribute, $direction) use ($sorter) {
+    if ($direction == SORT_ASC) {
+        return $sorter->build($attribute, SORT_DESC);
+    } elseif ($direction == SORT_DESC) {
+        return $sorter->build($attribute, SORT_ASC);
     }
 };
-$getIcon = function ($getAttr, $targetAttr) {
-    $dir = null;
-    $attr = null;
-    if (substr($getAttr, 0, 1) == '-') {
-        $attr = substr($getAttr, 1); // DESC, вверх
-        $dir = SORT_DESC;
-    } else {
-        $attr = $getAttr; // ASC, вниз
-        $dir = SORT_ASC;
-    }
+$getIcon = function ($getAttr, $targetAttr) use ($sorter) {
+    [$dir, $attr] = $sorter->parse($getAttr);
     if ($attr == $targetAttr) {
         if ($dir == SORT_ASC) {
             return '<img src="/img/arrow-down.svg">';
-        }
-        if ($dir == SORT_DESC) {
+        } elseif ($dir == SORT_DESC) {
             return '<img src="/img/arrow-up.svg">';
         }
     }
     return '';
 };
-$getSortUrl = function ($getAttr, $targetAttr) use ($reverseSort, $q) {
-    $name = ($getAttr === $targetAttr) ? $reverseSort($getAttr) : $targetAttr;
-    $args = ['sort' => $name];
-    return sprintf('/?%s', http_build_query(array_merge($q, $args)));
+$getSortQuery = function ($getAttr, $targetAttr) use ($reverseSort, $sorter) {
+    $name = ($getAttr === $targetAttr) ? $reverseSort($targetAttr) : $targetAttr;
+    $sortParam = $sorter->getParam();
+    return "{$sortParam}={$name}";
 };
+
 ?>
 
 <?php $this->layout('layout/main', ['isAdmin' => $isAdmin, 'flashes' => $flashes]) ?>
@@ -45,14 +38,20 @@ $getSortUrl = function ($getAttr, $targetAttr) use ($reverseSort, $q) {
         <tr>
             <th scope="col" width="5%">#</th>
             <th scope="col" width="20%">
-                <a href="<?= $getSortUrl($sort, 'name') ?>">имя пользователя <?= $getIcon($sort, 'name') ?></a>
+                <a href="<?= $this->modifyCurrentUrl($getSortQuery($sort, 'name')) ?>">
+                    имя пользователя <?= $getIcon($sort, 'name') ?>
+                </a>
             </th>
             <th scope="col" width="15%">
-                <a href="<?= $getSortUrl($sort, 'email') ?>">e-mail <?= $getIcon($sort, 'email') ?></a>
+                <a href="<?= $this->modifyCurrentUrl($getSortQuery($sort, 'email')) ?>">
+                    e-mail <?= $getIcon($sort, 'email') ?>
+                </a>
             </th>
             <th scope="col" width="40%">текст задачи</th>
             <th scope="col" width="10%">
-                <a href="<?= $getSortUrl($sort, 'status') ?>">статус <?= $getIcon($sort, 'status') ?></a>
+                <a href="<?= $this->modifyCurrentUrl($getSortQuery($sort, 'status')) ?>">
+                    статус <?= $getIcon($sort, 'status') ?>
+                </a>
             </th>
             <th scope="col" width="5%"></th>
             <th scope="col" width="5%"></th>
@@ -67,14 +66,13 @@ $getSortUrl = function ($getAttr, $targetAttr) use ($reverseSort, $q) {
             <td scope="col"><?= $this->e($job['content']) ?></td>
             <td scope="col"><?= $job['status'] ? '<img src="/img/check.svg" alt="Выполнена">' : '' ?></td>
             <td scope="col">
-                <?= $job['edited_by_admin'] ?
-                    '<img src="/img/edit-3.svg" alt="Редактировалось администратором">' :
-                    ''
-                ?>
+                <?= $job['edited_by_admin'] ? '<img src="/img/edit-3.svg" alt="Редактировалось администратором">' : '' ?>
             </td>
             <td scope="col">
                 <?php if ($isAdmin) : ?>
-                <a href="<?= $this->url('job.update', ['id' => $job['id']]) ?>" title="Редактировать"><img src="/img/edit.svg"></a>
+                <a href="<?= $this->url('job.update', ['id' => $job['id']]) ?>" title="Редактировать">
+                    <img src="/img/edit.svg">
+                </a>
                 <?php endif; ?>
             </td>
         </tr>
@@ -82,4 +80,4 @@ $getSortUrl = function ($getAttr, $targetAttr) use ($reverseSort, $q) {
     </tbody>
 </table>
 
-<?php $this->insert('widget/pager', ['pager' => $pager, 'main_route' => '/', 'route' => '/']) ?>
+<?php $this->insert('widget/pager', ['pager' => $pager]) ?>

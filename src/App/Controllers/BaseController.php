@@ -19,6 +19,7 @@ class BaseController
     public $action;
     protected $flashMessages;
     protected $session;
+    protected $user;
     protected $isAdmin = false;
 
     public function __construct(Engine $engine, EventDispatcherInterface $dispatcher)
@@ -31,6 +32,7 @@ class BaseController
     {
         $response = new Response();
         $params['flashes'] = $this->flashMessages->getFlashes();
+        $params['user'] = $this->user;
         $params['isAdmin'] = $this->isAdmin;
         
         $response->getBody()->write($this->templateEngine->render($view, $params));
@@ -63,6 +65,7 @@ class BaseController
         $request = $event->request;
         $this->flashMessages = $request->getAttribute('flash');
         $this->session = $request->getAttribute('session');
+        $this->user = $request->getAttribute(UserInterface::class, false);
         $this->isAdmin = $request->getAttribute(UserInterface::class) !== null;
     }
     

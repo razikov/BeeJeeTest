@@ -21,7 +21,9 @@
     "mezzio/mezzio-csrf": "^1.0",
     "mezzio/mezzio-authorization-rbac": "^1.0",
     "monolog/monolog": "^2.0",
-    "laminas/laminas-config-aggregator": "^1.2"
+    "laminas/laminas-config-aggregator": "^1.2",
+    "league/uri": "^6.2",
+    "league/uri-components": "^2.2"
   },
   "require-dev": {
     

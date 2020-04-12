@@ -21,10 +21,39 @@ class PlatesUrlExtension implements ExtensionInterface
     {
         $engine->registerFunction('url', [$this, 'url']);
         $engine->registerFunction('absoluteUrl', [$this, 'absoluteUrl']);
+        $engine->registerFunction('currentUrl', [$this, 'currentUrl']);
+        $engine->registerFunction('currentAbsoluteUrl', [$this, 'currentAbsoluteUrl']);
+        $engine->registerFunction('modifyCurrentUrl', [$this, 'modifyCurrentUrl']);
+        $engine->registerFunction('modifyCurrentAbsoluteUrl', [$this, 'modifyCurrentAbsoluteUrl']);
     }
 
     public function url($name, $params = [])
     {
         return $this->urlHelper->createUrl($name, $params);
+    }
+
+    public function absoluteUrl($name, $params = [])
+    {
+        return $this->urlHelper->createUrl($name, $params, true);
+    }
+
+    public function currentUrl()
+    {
+        return $this->urlHelper->modifyCurrentUrl('');
+    }
+
+    public function currentAbsoluteUrl()
+    {
+        return $this->urlHelper->modifyCurrentUrl('', true);
+    }
+
+    public function modifyCurrentUrl(string $query)
+    {
+        return $this->urlHelper->modifyCurrentUrl($query);
+    }
+
+    public function modifyCurrentAbsoluteUrl(string $query)
+    {
+        return $this->urlHelper->modifyCurrentUrl($query, true);
     }
 }
